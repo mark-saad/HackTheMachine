@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Sep 23 11:28:13 2017
+Created on Sat Sep 23 18:36:22 2017
 
 @author: Mark Saad
 """
@@ -17,12 +17,11 @@ def read_csv(filepath):
     df.sort_index()
     return df
 
-# GTG Files selected columns for clustering
-gtg_columns = ['STATOR HIGHEST TEMP', 'GEN LO PRES', 'GEN BEARING TEMP',\
-               'FUEL OIL HEAD PRES', 'ENGINE VIBS', 'ENGINE LO PRES',\
-               'ENG LUBE OIL TEMP']
+# MRG Files selected columns to be dropped for clustering
+mrg_drop_columns = ['TURB OVER TEMP', 'TURN GR ENGAGED', 'TURN GR DISENGD',\
+               'indicator']
 
-data = read_csv("D:\HackTheMachine\hackthemachine-data\classA_ship1_allGTG.csv")
+data = read_csv("D:\HackTheMachine\hackthemachine-data\classA_ship1_allMRG.csv")
 #print data.head()
 
 unique_indicators = data.indicator.unique()
@@ -34,7 +33,7 @@ predict_dict = {elem : pd.DataFrame for elem in unique_indicators}
 for key in df_dict.keys():
     df_dict[key] = data[:][data.indicator == key]
     #df_dict[key] = df_dict[key].drop(gtg_drop, axis=1)
-    X = df_dict[key][gtg_columns]
+    X = df_dict[key].drop(mrg_drop_columns, axis=1)
     # change the contamination percentage to have more or less outliers
     clf = IsolationForest(contamination=0.1)
     clf.fit(X)
