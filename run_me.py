@@ -11,6 +11,9 @@ from sklearn.ensemble import IsolationForest
 
 def read_csv(filepath):
     df = pd.read_csv(filepath, parse_dates=True, index_col='DateTime')
+    print df.shape
+    df = df.drop_duplicates()
+    print df.shape
     df.fillna(0, inplace=True)
     df.sort_index()
     return df
@@ -27,8 +30,8 @@ predict_dict = {elem : pd.DataFrame for elem in unique_indicators}
 
 for key in df_dict.keys():
     df_dict[key] = data[:][data.indicator == key]
-    df_dict[key] = df_dict[key].drop(['indicator'], axis=1)
-    clf = IsolationForest()
+    df_dict[key] = df_dict[key].drop(['indicator', 'TURB OVER TEMP', 'POWER FACTOR', 'LO SUMP LEVEL: 1=N'], axis=1)
+    clf = IsolationForest(contamination=0.1)
     clf.fit(df_dict[key])
     predict_dict[key] = clf.predict(df_dict[key])
     df = df_dict[key]
@@ -37,4 +40,4 @@ for key in df_dict.keys():
     ax = df.plot(kind='line',logy=True).legend(loc='center left', bbox_to_anchor=(1, 0.5))
     fig = ax.get_figure()
     fig.savefig(key+'.png')
-    #df.to_csv(key+'.csv', sep=',')
+    df.to_csv(key+'.csv', sep=',')
